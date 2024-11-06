@@ -1,0 +1,44 @@
+# Ignorer les fichiers Python compilés
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignorer les environnements virtuels
+venv/
+env/
+
+# Ignorer les fichiers de configuration spécifiques aux IDE
+.idea/
+.vscode/
+
+# Ignorer les fichiers de cache
+*.log
+*.bak
+*.swp
+
+# Ignorer les modèles entraînés et les checkpoints de PyTorch
+*.pt
+*.pth
+
+# Ignorer les fichiers temporaires de Tkinter (fichiers créés à l'exécution)
+*.db
+*.sqlite
+
+# Ignorer les fichiers de sortie et autres artefacts de tests
+*.out
+*.csv
+*.h5
+*.pkl
+
+# Ignorer les dossiers spécifiques à l'utilisateur (configurations personnelles)
+*.DS_Store  # MacOS
+*.Thumbs.db  # Windows
+
+# Ignorer les fichiers d'installation de packages Python
+*.egg-info/
+dist/
+build/
+
+archive/
+# Ignorer les fichiers Jupyter Notebook (si vous en avez dans le projet)
+*.ipynb_checkpoints
