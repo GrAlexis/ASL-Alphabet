@@ -6,7 +6,7 @@ import numpy as np
 from torchvision import transforms
 
 # Fonction pour afficher les images
-def show_images_from_folder(folder_path):
+def show_images_from_folder(folder_path, nb_images):
     # Appliquer une transformation pour convertir les images en tensor
     transform = transforms.Compose([
         transforms.ToTensor()
@@ -20,7 +20,7 @@ def show_images_from_folder(folder_path):
         return
 
     # Créer une figure pour afficher les images
-    num_images_to_show = min(10, len(image_files))  # Limiter à 10 images au maximum
+    num_images_to_show = min(nb_images, len(image_files))  # Limiter à 10 images au maximum
     fig, axes = plt.subplots(1, num_images_to_show, figsize=(15, 15))
     
     # Si un seul axe est retourné, on le met dans une liste pour que ça soit itérable
@@ -49,6 +49,6 @@ folder_path = input("Veuillez entrer le chemin du dossier contenant les images: 
 # Vérifier si le chemin est valide
 if os.path.isdir(folder_path):
     # Appeler la fonction pour afficher les images
-    show_images_from_folder(folder_path)
+    show_images_from_folder(folder_path,12)
 else:
     print(f"Le chemin spécifié '{folder_path}' n'est pas valide ou n'existe pas.")
