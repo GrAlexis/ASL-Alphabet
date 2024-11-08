@@ -74,7 +74,6 @@ def show_images_from_folder(folder_path, nb_images):
 
 #####MAIN######
 
-
 # Demander à l'utilisateur de saisir le chemin du dossier d'images
 path = input("Veuillez entrer le chemin de l'image ou du dossier : ")
 show_images_from_folder(path,8)
