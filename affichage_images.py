@@ -5,6 +5,32 @@ from PIL import Image
 import numpy as np
 from torchvision import transforms
 
+def show_single_image(image_path):
+    # Vérifier si le fichier existe
+    if not os.path.isfile(image_path):
+        print(f"L'image spécifiée '{image_path}' n'existe pas.")
+        return
+    
+    # Appliquer une transformation pour convertir l'image en tensor
+    transform = transforms.Compose([
+        transforms.ToTensor()
+    ])
+    
+    # Charger l'image
+    image = Image.open(image_path)  # Charger l'image
+    image_tensor = transform(image)  # Appliquer la transformation
+
+    # Convertir le tensor en image (de format [C, H, W] vers [H, W, C])
+    image = image_tensor.permute(1, 2, 0).numpy()
+
+    # Afficher l'image
+    plt.figure(figsize=(8, 8))
+    plt.imshow(image)
+    plt.axis('off')  # Ne pas afficher les axes
+    plt.title("Image affichée")
+    plt.show()
+
+
 # Fonction pour afficher les images
 def show_images_from_folder(folder_path, nb_images):
     # Appliquer une transformation pour convertir les images en tensor
@@ -43,12 +69,13 @@ def show_images_from_folder(folder_path, nb_images):
     plt.tight_layout()
     plt.show()
 
-# Demander à l'utilisateur de saisir le chemin du dossier d'images
-folder_path = input("Veuillez entrer le chemin du dossier contenant les images: ")
 
-# Vérifier si le chemin est valide
-if os.path.isdir(folder_path):
-    # Appeler la fonction pour afficher les images
-    show_images_from_folder(folder_path,12)
-else:
-    print(f"Le chemin spécifié '{folder_path}' n'est pas valide ou n'existe pas.")
+
+
+#####MAIN######
+
+
+# Demander à l'utilisateur de saisir le chemin du dossier d'images
+path = input("Veuillez entrer le chemin de l'image ou du dossier : ")
+show_images_from_folder(path,8)
+#show_single_image(path)
