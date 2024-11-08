@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 # Fonction pour appliquer le filtre Canny et isoler l'objet (la main)
-def apply_canny_and_isolate_hand(image_path, low_threshold=110, high_threshold=170, border_margin=20):
+def apply_canny_and_isolate_hand(image_path, low_threshold=110, high_threshold=150):
     # Charger l'image avec PIL et la convertir en niveaux de gris avec OpenCV
     image = Image.open(image_path)
     image = np.array(image)  # Convertir l'image PIL en array numpy pour l'utiliser avec OpenCV
@@ -16,23 +16,8 @@ def apply_canny_and_isolate_hand(image_path, low_threshold=110, high_threshold=1
     # Appliquer le filtre Canny pour détecter les contours
     edges = cv2.Canny(gray_image, low_threshold, high_threshold)
     
-    # Récupérer les dimensions de l'image
-    height, width = gray_image.shape
-    
-    # Créer un masque pour exclure les zones proches des bords
-    mask = np.ones_like(edges) * 255  # Créer un masque de 1s (zones valides)
-    
-    # Définir les zones proches des bords à exclure
-    mask[:border_margin, :] = 0  # Bord supérieur
-    mask[-border_margin:, :] = 0  # Bord inférieur
-    mask[:, :border_margin] = 0  # Bord gauche
-    mask[:, -border_margin:] = 0  # Bord droit
-    
-    # Appliquer le masque pour supprimer les contours proches des bords
-    edges_with_mask = cv2.bitwise_and(edges, mask)
-    
     # Convertir le résultat en image RGB pour l'affichage
-    edges_rgb = cv2.cvtColor(edges_with_mask, cv2.COLOR_GRAY2RGB)
+    edges_rgb = cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB)
     
     return edges_rgb
 
