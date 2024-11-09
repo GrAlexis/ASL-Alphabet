@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 # Fonction pour appliquer le filtre Canny et isoler l'objet (la main)
-def apply_canny_and_isolate_hand(image_path, low_threshold=110, high_threshold=150):
+def apply_canny_and_isolate_hand(image_path, low_threshold=70, high_threshold=130):
     # Charger l'image avec PIL et la convertir en niveaux de gris avec OpenCV
     image = Image.open(image_path)
     image = np.array(image)  # Convertir l'image PIL en array numpy pour l'utiliser avec OpenCV
