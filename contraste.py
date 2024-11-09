@@ -6,7 +6,7 @@ import numpy as np
 from torchvision import transforms
 
 # Fonction pour améliorer le contraste d'une image
-def enhance_contrast(image_path, factor=3.0):
+def enhance_contrast(image_path, factor=2.0):
     # Charger l'image
     image = Image.open(image_path)
 
@@ -34,7 +34,7 @@ def enhance_contrast(image_path, factor=3.0):
     return enhanced_image
 
 # Fonction pour améliorer le contraste de toutes les images dans un dossier
-def enhance_contrast_in_folder(folder_path, nb_images, factor=3.0):
+def enhance_contrast_in_folder(folder_path, nb_images, factor=2.0):
     # Lister les fichiers dans le dossier
     image_files = [f for f in os.listdir(folder_path) if f.endswith(('.png', '.jpg', '.jpeg'))]
     
@@ -66,7 +66,7 @@ def enhance_contrast_in_folder(folder_path, nb_images, factor=3.0):
 
 # Exemple d'utilisation : Améliorer le contraste d'une image spécifique
 image_path = input("Veuillez entrer le chemin de l'image à améliorer : ")
-enhance_contrast(image_path, factor=3.0)
+enhance_contrast(image_path, factor=2.0)
 
 # Exemple d'utilisation : Améliorer le contraste des images dans un dossier
 #folder_path = input("Veuillez entrer le chemin du dossier contenant les images : ")
