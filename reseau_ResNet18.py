@@ -7,10 +7,16 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import torchvision
+from analyses.accuracy_losses import plot_training_metrics  # Importer la fonction pour afficher les graphiques
+from analyses.confusion_matrix import plot_confusion_matrix  # Importer la fonction pour la matrice de confusion
+from analyses.roc_auc import plot_roc_curve
+from analyses.error_distribution import plot_error_distribution  # Importer la fonction pour afficher la distribution des erreurs
+from analyses.apprentissage import plot_overfitting  # Importer la fonction pour analyser le surapprentissage
+
 
 # Paramètres
 batch_size = 64
-num_epochs = 10
+num_epochs = 5
 learning_rate = 0.001
 
 # Vérification de la disponibilité du GPU
@@ -36,11 +42,6 @@ test_data = datasets.ImageFolder(root=test_dir, transform=transform)
 trainloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
 testloader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
 
-# Affichage du nombre d'images et de classes
-print(f"Nombre d'images d'entraînement : {len(train_data)}")
-print(f"Nombre d'images de test : {len(test_data)}")
-print(f"Nombre de classes : {len(train_data.classes)}")
-
 # Modèle pré-entrainé (ResNet18) pour la classification
 class ASLClassifier(nn.Module):
     def __init__(self, num_classes):
@@ -65,6 +66,12 @@ criterion = nn.CrossEntropyLoss()
 
 # Optimiseur (Adam)
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+# Liste pour stocker les pertes et les précisions
+train_losses = []
+test_losses = []
+train_accuracies = []
+test_accuracies = []
 
 # Entraînement du modèle
 for epoch in range(num_epochs):
@@ -100,11 +107,52 @@ for epoch in range(num_epochs):
             running_loss = 0.0
     
     # Afficher l'accuracy pour chaque époque
-    accuracy = 100 * correct / total
-    print(f"Epoch {epoch + 1} Accuracy: {accuracy:.2f}%")
+    train_accuracy = 100 * correct / total
+    print(f"Epoch {epoch + 1} Train Accuracy: {train_accuracy:.2f}%")
+
+    # Enregistrer la perte et la précision pour l'entraînement
+    train_losses.append(running_loss / len(trainloader))
+    train_accuracies.append(train_accuracy)
+
+    # Évaluation sur le test
+    model.eval()  # Mettre le modèle en mode évaluation
+    test_loss = 0.0
+    correct = 0
+    total = 0
+
+    with torch.no_grad():  # Pas besoin de calculer les gradients pendant l'évaluation
+        for inputs, labels in testloader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            test_loss += loss.item()
+            _, predicted = torch.max(outputs, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+    
+    test_loss /= len(testloader)
+    test_accuracy = 100 * correct / total
+
+    # Enregistrer la perte et la précision pour le test
+    test_losses.append(test_loss)
+    test_accuracies.append(test_accuracy)
+
+    print(f"Epoch {epoch + 1} Test Accuracy: {test_accuracy:.2f}%")
+
+# Afficher les courbes des pertes et des précisions (surapprentissage et sous-apprentissage)
+plot_overfitting(train_losses, test_losses, train_accuracies, test_accuracies)
+
+# Afficher les courbes des pertes et des précisions d'entraînement
+plot_training_metrics(train_losses, train_accuracies)
+
+# Afficher la matrice de confusion après l'évaluation
+plot_confusion_matrix(model, testloader, test_data.classes, device)
 
 # Sauvegarder le modèle après l'entraînement
 torch.save(model.state_dict(), 'asl_model.pth')
+
+roc_auc_scores = plot_roc_curve(model, testloader, num_classes=len(train_data.classes), device=device)
+print("AUC Scores par classe : ", roc_auc_scores)
 
 # Évaluation du modèle
 model.eval()  # Mettre le modèle en mode évaluation
@@ -122,6 +170,10 @@ with torch.no_grad():  # Pas besoin de calculer les gradients pendant l'évaluat
 
 accuracy = 100 * correct / total
 print(f"Accuracy sur les données de test : {accuracy:.2f}%")
+
+# Afficher la distribution des erreurs
+plot_error_distribution(model, testloader, test_data.classes, device)
+
 
 # Afficher quelques images et leurs prédictions
 def imshow(img):
