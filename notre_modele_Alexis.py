@@ -6,8 +6,8 @@ from torchvision import transforms, datasets
 import matplotlib.pyplot as plt
 import numpy as np
 import torchvision
-import torch.nn.functional as F  # Importation de torch.nn.functional
-import time  # Importation du module time pour mesurer la durée
+import torch.nn.functional as F
+import time
 
 # Vérification de la disponibilité du GPU
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -28,39 +28,33 @@ val_dir = input("Entrez le chemin du dossier d'images de validation : ")
 train_data = datasets.ImageFolder(root=train_dir, transform=transform)
 val_data = datasets.ImageFolder(root=val_dir, transform=transform)
 
-trainloader = DataLoader(train_data, batch_size=64, shuffle=True)
-valloader = DataLoader(val_data, batch_size=64, shuffle=False)
+trainloader = DataLoader(train_data, batch_size=200, shuffle=True)
+valloader = DataLoader(val_data, batch_size=200, shuffle=False)
 
 # Définition du modèle
 class CustomCNN(nn.Module):
     def __init__(self, num_classes):
         super(CustomCNN, self).__init__()
         
-        # Bloc 1 : Convolution + ReLU + BatchNorm + MaxPooling
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3, stride=1, padding=1)
         self.bn1 = nn.BatchNorm2d(32)
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
         
-        # Bloc 2 : Convolution + ReLU + BatchNorm + MaxPooling
         self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
         self.bn2 = nn.BatchNorm2d(64)
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
         
-        # Bloc 3 : Convolution + ReLU + BatchNorm + MaxPooling
         self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1)
         self.bn3 = nn.BatchNorm2d(128)
         self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
         
-        # Bloc 4 : Convolution + ReLU + BatchNorm
         self.conv4 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1, padding=1)
         self.bn4 = nn.BatchNorm2d(256)
         
-        # Couches entièrement connectées
         self.fc1 = nn.Linear(256 * 16 * 16, 512)
         self.fc2 = nn.Linear(512, 128)
         self.fc3 = nn.Linear(128, num_classes)
         
-        # Dropout
         self.dropout = nn.Dropout(0.5)
     
     def forward(self, x):
@@ -95,7 +89,7 @@ for epoch in range(num_epochs):
     running_loss, correct, total = 0.0, 0, 0
 
     # Entraînement
-    for inputs, labels in trainloader:
+    for batch_idx, (inputs, labels) in enumerate(trainloader):
         inputs, labels = inputs.to(device), labels.to(device)
         optimizer.zero_grad()
         outputs = model(inputs)
@@ -107,7 +101,15 @@ for epoch in range(num_epochs):
         _, predicted = torch.max(outputs, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
-    
+
+        # Affichage en temps réel de l'entraînement des classes
+        if batch_idx % 10 == 0:  # Afficher tous les 10 batches
+            # Afficher la classe en cours de traitement
+            unique_classes_in_batch = torch.unique(labels).cpu().numpy()
+            print(f"Epoch {epoch + 1}/{num_epochs}, Batch {batch_idx}/{len(trainloader)}")
+            for class_idx in unique_classes_in_batch:
+                print(f"Classe {train_data.classes[class_idx]} est en cours d'entraînement.")
+        
     train_accuracy = 100 * correct / total
     train_losses.append(running_loss / len(trainloader))
     train_accuracies.append(train_accuracy)
@@ -138,46 +140,3 @@ for epoch in range(num_epochs):
 # Sauvegarde du modèle
 torch.save(model.state_dict(), "custom_cnn.pth")
 print("Modèle sauvegardé sous 'custom_cnn.pth'")
-
-# Visualisation des courbes d'entraînement
-plt.figure(figsize=(12, 5))
-
-# Graphique de la perte
-plt.subplot(1, 2, 1)
-plt.plot(train_losses, label='Train Loss')
-plt.plot(val_losses, label='Validation Loss')
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.legend()
-plt.title('Loss vs Epochs')
-
-# Graphique de l'exactitude
-plt.subplot(1, 2, 2)
-plt.plot(train_accuracies, label='Train Accuracy')
-plt.plot(val_accuracies, label='Validation Accuracy')
-plt.xlabel('Epochs')
-plt.ylabel('Accuracy (%)')
-plt.legend()
-plt.title('Accuracy vs Epochs')
-
-plt.tight_layout()
-plt.show()
-
-# Visualisation de quelques prédictions
-def imshow(img):
-    img = img / 2 + 0.5  # Dé-normalisation
-    npimg = img.numpy()
-    plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    plt.show()
-
-dataiter = iter(valloader)
-images, labels = next(dataiter)
-
-# Affichage des images
-imshow(torchvision.utils.make_grid(images[:4]))
-print('GroundTruth:', ' '.join(f'{val_data.classes[labels[j]]}' for j in range(4)))
-
-# Prédictions
-outputs = model(images[:4].to(device))
-_, predicted = torch.max(outputs, 1)
-print('Predicted:', ' '.join(f'{val_data.classes[predicted[j]]}' for j in range(4)))
