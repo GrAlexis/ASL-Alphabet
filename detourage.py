@@ -5,13 +5,16 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 # Fonction pour appliquer le filtre Canny et isoler l'objet (la main)
-def apply_canny_and_isolate_hand(image_path, low_threshold=70, high_threshold=130):
+def apply_canny_and_isolate_hand(image_path, low_threshold=70, high_threshold=130, gray=True):
     # Charger l'image avec PIL et la convertir en niveaux de gris avec OpenCV
     image = Image.open(image_path)
     image = np.array(image)  # Convertir l'image PIL en array numpy pour l'utiliser avec OpenCV
     
-    # Convertir l'image en niveaux de gris
-    gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    if gray :
+        # Convertir l'image en niveaux de gris
+        gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    else :
+        gray_image = image
     
     # Appliquer le filtre Canny pour détecter les contours
     edges = cv2.Canny(gray_image, low_threshold, high_threshold)
@@ -57,7 +60,17 @@ def show_images_from_folder_with_canny(folder_path, nb_images, low_threshold=100
     plt.tight_layout()
     plt.show()
 
-# Exemple d'utilisation
-folder_path = input("Veuillez entrer le chemin du dossier contenant les images: ")
-show_images_from_folder_with_canny(folder_path, nb_images=len(os.listdir(folder_path)))
+def save_canny_image_in_folder(src_folder, dst_folder, low_threshold, high_threshold):
+    # Récupération de l'ensemble des images du dossier sources
+    images_path = [f for f in os.listdir(src_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
+
+    canny_list = [Image.fromarray(apply_canny_and_isolate_hand(src_folder + image_path,  low_threshold=low_threshold, high_threshold=high_threshold, gray=False)) for image_path in images_path]
+
+    for i in range(len(images_path)):
+        canny_list[i].save(dst_folder + images_path[i])
+
+if __name__ == '__main__':
+    # Exemple d'utilisation
+    folder_path = input("Veuillez entrer le chemin du dossier contenant les images: ")
+    show_images_from_folder_with_canny(folder_path, nb_images=len(os.listdir(folder_path)))
 

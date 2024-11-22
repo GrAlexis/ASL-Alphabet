@@ -56,13 +56,15 @@ def split_dataset(base_dir, output_dir, train_ratio=0.6, val_ratio=0.2, test_rat
             for image in image_set:
                 src_path = os.path.join(class_path, image)
                 dst_path = os.path.join(folder, class_name, image)
-                shutil.copy(src_path, dst_path)
+                shutil.copyfile(src_path, dst_path)
 
         print(f"Classe '{class_name}' : {len(train_images)} train, {len(val_images)} val, {len(test_images)} test")
 
     print("Division terminée ! Les ensembles sont prêts.")
 
 # Exécution
-base_dir = input("Entrez le chemin du dossier contenant les données (images classées par sous-dossier) : ")
-output_dir = input("Entrez le chemin du dossier de sortie pour les ensembles divisés : ")
+# base_dir = input("Entrez le chemin du dossier contenant les données (images classées par sous-dossier) : ")
+# output_dir = input("Entrez le chemin du dossier de sortie pour les ensembles divisés : ")
+base_dir = r"C:\Users\cohel\OneDrive\Documents\4TC\TIP\ASL-Alphabet\archive\asl_alphabet_train\asl_alphabet_train"
+output_dir = r"C:\Users\cohel\OneDrive\Documents\4TC\TIP\ASL-Alphabet\archive\splitted"
 split_dataset(base_dir, output_dir)

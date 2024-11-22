@@ -5,49 +5,50 @@ from PIL import Image
 import cv2  # OpenCV pour l'égalisation d'histogramme
 
 # Fonction pour appliquer l'égalisation d'histogramme sur une image
-def histogram_equalization(image_path):
+def histogram_equalization(image_path, show_image=True):
     # Charger l'image en niveau de gris
     image = Image.open(image_path).convert('L')  # Convertir en niveaux de gris
     image = np.array(image)
+    if show_image :
+        # Afficher l'image originale et son histogramme
+        plt.figure(figsize=(12, 6))
 
-    # Afficher l'image originale et son histogramme
-    plt.figure(figsize=(12, 6))
+        # Image originale
+        plt.subplot(1, 2, 1)
+        plt.imshow(image, cmap='gray')
+        plt.title("Image originale")
+        plt.axis('off')
 
-    # Image originale
-    plt.subplot(1, 2, 1)
-    plt.imshow(image, cmap='gray')
-    plt.title("Image originale")
-    plt.axis('off')
-
-    # Afficher l'histogramme de l'image originale
-    plt.subplot(1, 2, 2)
-    plt.hist(image.flatten(), bins=256, range=(0, 256), color='black')
-    plt.title("Histogramme de l'image originale")
-    plt.xlabel("Niveaux de gris")
-    plt.ylabel("Fréquence")
-    plt.tight_layout()
-    plt.show()
+        # Afficher l'histogramme de l'image originale
+        plt.subplot(1, 2, 2)
+        plt.hist(image.flatten(), bins=256, range=(0, 256), color='black')
+        plt.title("Histogramme de l'image originale")
+        plt.xlabel("Niveaux de gris")
+        plt.ylabel("Fréquence")
+        plt.tight_layout()
+        plt.show()
 
     # Appliquer l'égalisation d'histogramme avec OpenCV
     image_equalized = cv2.equalizeHist(image)
 
-    # Afficher l'image égalisée et son histogramme
-    plt.figure(figsize=(12, 6))
+    if show_image :
+        # Afficher l'image égalisée et son histogramme
+        plt.figure(figsize=(12, 6))
 
-    # Image égalisée
-    plt.subplot(1, 2, 1)
-    plt.imshow(image_equalized, cmap='gray')
-    plt.title("Image après égalisation d'histogramme")
-    plt.axis('off')
+        # Image égalisée
+        plt.subplot(1, 2, 1)
+        plt.imshow(image_equalized, cmap='gray')
+        plt.title("Image après égalisation d'histogramme")
+        plt.axis('off')
 
-    # Afficher l'histogramme de l'image égalisée
-    plt.subplot(1, 2, 2)
-    plt.hist(image_equalized.flatten(), bins=256, range=(0, 256), color='black')
-    plt.title("Histogramme après égalisation")
-    plt.xlabel("Niveaux de gris")
-    plt.ylabel("Fréquence")
-    plt.tight_layout()
-    plt.show()
+        # Afficher l'histogramme de l'image égalisée
+        plt.subplot(1, 2, 2)
+        plt.hist(image_equalized.flatten(), bins=256, range=(0, 256), color='black')
+        plt.title("Histogramme après égalisation")
+        plt.xlabel("Niveaux de gris")
+        plt.ylabel("Fréquence")
+        plt.tight_layout()
+        plt.show()
 
     return image_equalized
 
@@ -74,10 +75,20 @@ def histogram_equalization_in_folder(folder_path, nb_images):
         # Appliquer l'égalisation d'histogramme
         histogram_equalization(image_path)
 
-# Exemple d'utilisation : Appliquer l'égalisation d'histogramme à une image spécifique
-image_path = input("Veuillez entrer le chemin de l'image à traiter : ")
-histogram_equalization(image_path)
+def save_equalized_image_in_folder(src_folder, dst_folder):
+    # Lister les fichiers dans le dossier
+    image_files = [f for f in os.listdir(src_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
 
-# Exemple d'utilisation : Appliquer l'égalisation d'histogramme sur un dossier d'images
-#folder_path = input("Veuillez entrer le chemin du dossier contenant les images : ")
-#histogram_equalization_in_folder(folder_path, nb_images=5)
+    equalized_images = [Image.fromarray(histogram_equalization(src_folder + image_path, show_image=False)) for image_path in image_files]
+
+    for i in range(len(image_files)):
+        equalized_images[i].save(dst_folder + image_files[i])
+
+if __name__ == '__main__':
+    # Exemple d'utilisation : Appliquer l'égalisation d'histogramme à une image spécifique
+    image_path = input("Veuillez entrer le chemin de l'image à traiter : ")
+    histogram_equalization(image_path)
+
+    # Exemple d'utilisation : Appliquer l'égalisation d'histogramme sur un dossier d'images
+    #folder_path = input("Veuillez entrer le chemin du dossier contenant les images : ")
+    #histogram_equalization_in_folder(folder_path, nb_images=5)

@@ -24,6 +24,3 @@ def redimensionnage_all(src_folder, dst_folder, size=64):
     # Sauvegarde de l'ensemble des images dans le dossier destination
     for i in range(len(images_path)):
         resize_list[i].save(dst_folder + images_path[i])
-
-
-redimensionnage_all(src_folder=r'archive\asl_alphabet_test\asl_alphabet_test\\', dst_folder=r'archive\redimensionnage_test\\', size=64)
